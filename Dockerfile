@@ -1,7 +1,7 @@
 FROM debian
 
 # ARCH is only set to avoid repetition in Dockerfile since the binary download only supports amd64
-ARG ARCH=amd64
+ARG ARCH=arm64
 
 ARG APT_UPDATE=20210112
 
@@ -10,8 +10,16 @@ RUN apt-get update && \
     curl \
     unzip \
     jq \
+    debian-keyring \
+    wget \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Instal box64
+RUN wget https://ryanfortner.github.io/box64-debs/box64.list -O /etc/apt/sources.list.d/box64.list && \
+  wget -O- https://ryanfortner.github.io/box64-debs/KEY.gpg | gpg --dearmor | tee /usr/share/keyrings/box64-debs-archive-keyring.gpg && \
+  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  box64
 
 EXPOSE 19132/udp
 
